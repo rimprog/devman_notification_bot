@@ -8,13 +8,13 @@ import telegram
 from dotenv import load_dotenv
 
 
-def get_dvmn_api_response(dvmn_api_request_settings):
+def get_dvmn_api_response(timestamp):
     try:
         response = requests.get(
-            dvmn_api_request_settings['url'],
-            headers=dvmn_api_request_settings['headers'],
-            params=dvmn_api_request_settings['payload'],
-            timeout=dvmn_api_request_settings['timeout']
+            'https://dvmn.org/api/long_polling/',
+            headers={'Authorization': os.getenv('DVMN_API_TOKEN')},
+            params={'timestamp': timestamp},
+            timeout=100
         )
         response.raise_for_status()
 
@@ -33,6 +33,8 @@ def get_timestamp_for_request(response):
         timestamp = response['timestamp_to_request']
     elif response['status'] == 'found':
         timestamp = response['last_attempt_timestamp']
+
+    print(timestamp)
 
     return timestamp
 
@@ -57,23 +59,15 @@ def send_telegram_notification(bot, dvmn_api_response):
 def main():
     load_dotenv()
     bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
-
-    dvmn_api_request_settings = {
-        'url': 'https://dvmn.org/api/long_polling/',
-        'headers': {
-            'Authorization': os.getenv('DVMN_API_TOKEN')
-        },
-        'payload': {'timestamp': ''},
-        'timeout': 100
-    }
+    timestamp = ''
 
     print('Waiting new lesson review...')
 
     while True:
-        dvmn_api_response = get_dvmn_api_response(dvmn_api_request_settings)
+        dvmn_api_response = get_dvmn_api_response(timestamp)
 
         if dvmn_api_response:
-            dvmn_api_request_settings['payload']['timestamp'] = get_timestamp_for_request(dvmn_api_response)
+            timestamp = get_timestamp_for_request(dvmn_api_response)
 
         send_telegram_notification(bot, dvmn_api_response)
 
