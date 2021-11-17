@@ -13,7 +13,7 @@ def get_dvmn_api_response(timestamp):
         'https://dvmn.org/api/long_polling/',
         headers={'Authorization': os.getenv('DVMN_API_TOKEN')},
         params={'timestamp': timestamp},
-        timeout=100
+        timeout=100,
     )
     response.raise_for_status()
 
@@ -27,8 +27,6 @@ def get_timestamp_for_request(response):
         timestamp = response['timestamp_to_request']
     elif response['status'] == 'found':
         timestamp = response['last_attempt_timestamp']
-
-    print(timestamp)
 
     return timestamp
 
@@ -61,7 +59,7 @@ def main():
         try:
             dvmn_api_response = get_dvmn_api_response(timestamp)
         except requests.exceptions.ReadTimeout as read_timeout_error:
-            print(read_timeout_error)
+            continue
         except requests.exceptions.ConnectionError as connection_error:
             print(connection_error)
             sleep(100)
