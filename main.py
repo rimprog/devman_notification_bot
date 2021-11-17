@@ -42,8 +42,6 @@ def send_telegram_notification(bot, dvmn_api_response):
             chat_id=os.getenv('TELEGRAM_USER_ID')
         )
 
-        print(notification)
-
 
 def main():
     load_dotenv()
