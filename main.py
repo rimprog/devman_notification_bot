@@ -33,14 +33,16 @@ def send_telegram_notification(bot, dvmn_api_response):
         lesson_url = urljoin('https://dvmn.org/', attempt['lesson_url'])
 
         if attempt['is_negative']:
-            notifications['fail'].format(lesson_title, lesson_url)
+            notification = notifications['fail'].format(lesson_title, lesson_url)
         else:
-            notifications['success'].format(lesson_title, lesson_url)
+            notification = notifications['success'].format(lesson_title, lesson_url)
 
         bot.send_message(
             text=notification,
             chat_id=os.getenv('TELEGRAM_USER_ID')
         )
+
+        print('New notification sent in telegram')
 
 
 def main():
