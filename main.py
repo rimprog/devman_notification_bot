@@ -9,23 +9,17 @@ from dotenv import load_dotenv
 
 
 def get_dvmn_api_response(timestamp):
-    try:
-        response = requests.get(
-            'https://dvmn.org/api/long_polling/',
-            headers={'Authorization': os.getenv('DVMN_API_TOKEN')},
-            params={'timestamp': timestamp},
-            timeout=100
-        )
-        response.raise_for_status()
+    response = requests.get(
+        'https://dvmn.org/api/long_polling/',
+        headers={'Authorization': os.getenv('DVMN_API_TOKEN')},
+        params={'timestamp': timestamp},
+        timeout=100
+    )
+    response.raise_for_status()
 
-        dvmn_api_response = response.json()
+    dvmn_api_response = response.json()
 
-        return dvmn_api_response
-    except requests.exceptions.ReadTimeout as read_timeout_error:
-        print(read_timeout_error)
-    except requests.exceptions.ConnectionError as connection_error:
-        print(connection_error)
-        sleep(100)
+    return dvmn_api_response
 
 
 def get_timestamp_for_request(response):
@@ -64,7 +58,13 @@ def main():
     print('Waiting new lesson review...')
 
     while True:
-        dvmn_api_response = get_dvmn_api_response(timestamp)
+        try:
+            dvmn_api_response = get_dvmn_api_response(timestamp)
+        except requests.exceptions.ReadTimeout as read_timeout_error:
+            print(read_timeout_error)
+        except requests.exceptions.ConnectionError as connection_error:
+            print(connection_error)
+            sleep(100)
 
         if dvmn_api_response:
             timestamp = get_timestamp_for_request(dvmn_api_response)
