@@ -22,30 +22,20 @@ def get_dvmn_api_response(timestamp):
     return dvmn_api_response
 
 
-def get_timestamp_for_request(response):
-    if response['status'] == 'timeout':
-        timestamp = response['timestamp_to_request']
-    elif response['status'] == 'found':
-        timestamp = response['last_attempt_timestamp']
-
-    return timestamp
-
-
 def send_telegram_notification(bot, dvmn_api_response):
     notifications = {
         'success': '\nУ вас проверили работу "{}".\nСсылка на работу: {}\nПреподавателю все понравилось, можно приступать к следующему уроку!\n',
         'fail': '\nУ вас проверили работу "{}".\nСсылка на работу: {}\nК сожалению в работе нашлись ошибки. Исправьте их и отправьте работу на проверку снова.\n',
     }
 
-    if dvmn_api_response['status'] == 'found':
-        for attempt in dvmn_api_response['new_attempts']:
-            lesson_title = attempt['lesson_title']
-            lesson_url = urljoin('https://dvmn.org/', attempt['lesson_url'])
-            notification = notifications['fail'].format(lesson_title, lesson_url) if attempt['is_negative'] else notifications['success'].format(lesson_title, lesson_url)
+    for attempt in dvmn_api_response['new_attempts']:
+        lesson_title = attempt['lesson_title']
+        lesson_url = urljoin('https://dvmn.org/', attempt['lesson_url'])
+        notification = notifications['fail'].format(lesson_title, lesson_url) if attempt['is_negative'] else notifications['success'].format(lesson_title, lesson_url)
 
-            bot.send_message(text=notification, chat_id=os.getenv('TELEGRAM_USER_ID'))
+        bot.send_message(text=notification, chat_id=os.getenv('TELEGRAM_USER_ID'))
 
-            print(notification)
+        print(notification)
 
 
 def main():
@@ -64,10 +54,12 @@ def main():
             print(connection_error)
             sleep(100)
 
-        if dvmn_api_response:
-            timestamp = get_timestamp_for_request(dvmn_api_response)
+        if dvmn_api_response['status'] == 'timeout':
+            timestamp = dvmn_api_response['timestamp_to_request']
+        elif dvmn_api_response['status'] == 'found':
+            timestamp = dvmn_api_response['last_attempt_timestamp']
 
-        send_telegram_notification(bot, dvmn_api_response)
+            send_telegram_notification(bot, dvmn_api_response)
 
 
 if __name__ == '__main__':
