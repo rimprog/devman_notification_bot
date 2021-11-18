@@ -1,9 +1,10 @@
 import os
-import requests
+import logging
 from pprint import pprint
 from time import sleep
 from urllib.parse import urljoin
 
+import requests
 import telegram
 from dotenv import load_dotenv
 
@@ -50,7 +51,7 @@ def main():
     bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
     timestamp = ''
 
-    print('Waiting new lesson review...')
+    logging.warning('Bot started. Waiting new lesson review...')
 
     while True:
         try:
