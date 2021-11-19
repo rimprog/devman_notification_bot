@@ -58,7 +58,7 @@ def send_telegram_notification(bot, chat_id, dvmn_api_response):
 
 def main():
     load_dotenv()
-    
+
     bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
     chat_id = os.getenv('TELEGRAM_USER_ID')
     timestamp = ''
@@ -75,7 +75,7 @@ def main():
         except requests.exceptions.ReadTimeout as read_timeout_error:
             continue
         except requests.exceptions.ConnectionError as connection_error:
-            logger.error(connection_error)
+            logger.exception('Bot crushed with error:\n\n')
             sleep(100)
 
         if dvmn_api_response['status'] == 'timeout':
