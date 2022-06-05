@@ -28,6 +28,14 @@
 В случае успешного запуска скрипта, в консоль будет выведено следующее сообщение:
 `Waiting new lesson review...`
 
+## Как запустить бота при помощи docker
+
+- Убедитесь что у вас установлен docker. Про [установку docker](https://docs.docker.com/get-docker/).
+- Соберите докер образ текущего проекта запустив команду `docker build --tag devman_notification_bot .`. Подробнее про [docker build images](https://docs.docker.com/language/python/build-images/).
+- Через команду `docker run -d --env-file ./.env --name devman_notification devman_notification_bot` запустите докер контейнер на основе собранного ранее образа проекта.
+- В случае успешного запуска докер контейнера, в телеграм придет следующее сообщение: `Bot started. Waiting new lesson review...`
+- Для остановки работы контейнера используйте команду `docker stop CONTAINER_ID`. Узнать CONTAINER_ID можно выполнив команду `docker ps`. [Подробнее про run containers](https://docs.docker.com/language/python/run-containers/).
+
 ## Как задеплоить бота на Heroku
 
 - Скопируйте себе на github [репозиторий проекта](https://github.com/rimprog/devman_notification_bot).
@@ -38,6 +46,16 @@
 - В подразделе `Deployment method` выберите свой скопированный `GitHub` репозиторий проекта и подключите его.
 - Перейдите в подраздел `Manual deploy` и выбрав нужную ветку, нажмите кнопку `Deploy Branch`.
 - Выше приложение готово к работе. Если приложение по какой-то причине не запустилось, проверьте [логи](https://devcenter.heroku.com/articles/logging#view-logs) вашего приложения и устраните указаннную ошибку.
+
+## Как задеплоить бота в docker на Heroku
+
+- Установите [Heroku CLI](https://devcenter.heroku.com/articles/heroku-command-line).
+- Залогиньтесь в heroku cli через команду `heroku login`.
+- Создайте новое приложение командой `heroku create -a devman-notification-docker-app`.
+- Через [графическое меню heroku](https://dashboard.heroku.com/apps/) откройте созданное приложение и в settings добавьте переменные окружения `.env` в `Config Vars`
+- Установите созданному приложению stack container, выполнив команду `heroku stack:set container`
+- Отправьте код текущего репозитория на heroku, выполнив команду `git push heroku master`.
+- Heroku автоматически создаст и запустит docker container, используя переменные окружения из `Config Vars`.
 
 ## Цели проекта
 
